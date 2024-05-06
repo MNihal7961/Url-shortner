@@ -17,4 +17,12 @@ const urlSchema = new mongoose.Schema({
     }
 });
 
+urlSchema.set("toJSON", {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        delete ret._id
+    }
+})
+
 export default mongoose.model("Url", urlSchema);

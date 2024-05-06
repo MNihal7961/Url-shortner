@@ -28,6 +28,8 @@ export const createUrlPost = async (req: req, res: res) => {
     } else {
         res.status(400).json("Missing original url link");
     }
-
-
 };
+
+export const fetcDataByUrlCodeGet=(req:req,res:res)=>{
+    
+}
