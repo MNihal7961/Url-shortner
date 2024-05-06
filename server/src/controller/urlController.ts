@@ -1,7 +1,7 @@
 import { Request as req, Response as res } from "express";
 
 import Url from '../model/urlSchema';
-import { createURL } from '../services/urlService';
+import { createURL, getUrlByUrlCode } from '../services/urlService';
 
 export const createUrlPost = async (req: req, res: res) => {
 
@@ -30,6 +30,25 @@ export const createUrlPost = async (req: req, res: res) => {
     }
 };
 
-export const fetcDataByUrlCodeGet=(req:req,res:res)=>{
-    
+export const fetcDataByUrlCodeGet = async (req: req, res: res) => {
+
+    const urlCode = req.params.urlCode;
+
+    if (!urlCode) {
+        res.status(404).send("Passed short url not found");
+    }
+
+    try {
+        const data = await getUrlByUrlCode(urlCode);
+
+        if (data) {
+            res.status(301).redirect(data?.originalLink)
+        } else {
+            res.status(404).send("Data not found for the provided URL code");
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+
 }
