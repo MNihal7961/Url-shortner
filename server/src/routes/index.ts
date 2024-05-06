@@ -1,11 +1,11 @@
 import express from "express";
 
-const router=express.Router()
+import urlRouter from "./urlRoute";
+
+const router = express.Router();
 
 // "/api" as base URL
 
-router.use('/url',(req,res)=>{
-    res.status(200).send("hello nihal")
-})
+router.use('/url', urlRouter);
 
-export default router
+export default router;
