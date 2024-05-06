@@ -1,6 +1,7 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import dbConnect from "./config/db";
+import baseURL from './routes/index'
 
 dotenv.config()
 
@@ -17,7 +18,16 @@ const server = app.listen(PORT, () => console.log(`Server running at http://loca
 // DB connection
 dbConnect()
 
+app.use((req: Request, res: Response, next: NextFunction) => {
+    console.log(`Route : ${req.method}:${req.originalUrl}`)
+    next()
+})
 
+// Routes
+app.use("/api", baseURL)
+
+
+// Handle Errors
 process.on('unhandledRejection', (reason, p) => {
     console.error('Unhandled Rejection at:', p, 'reason:', reason)
     server.close()
