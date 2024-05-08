@@ -1,51 +1,50 @@
 import { Request as req, Response as res } from "express";
-import isUrl from 'is-url'
-import jwt from "jsonwebtoken";
-import User from "../model/userSchema";
-import { generate as generateUrl } from "generate-password";
-
 
 import Url from '../model/urlSchema';
-// import { createURL, getUrlByUrlCode } from '../services/urlService';
+import { verifyToken, getUserByDecodedToken } from "../services/userService";
+import { checkOriginalLink, generateShortUrl, getOriginalLinkByUrlCode } from "../services/urlService";
 
 
 export const createUrlPost = async (req: req, res: res) => {
+
+    // CHECKING JWT 
     const token = req.cookies.token;
-
-
     if (!token) {
         return res.status(401).json({ success: false, message: "Unauthorized. No token provided" });
     }
 
+    // CHECKING LINK
+    const { originalLink } = req.body;
+    if (!originalLink) {
+        return res.status(400).json({ message: "Missing original URL link" });
+    }
+
     try {
         // VERIFY TOKEN
-        const verified: any = jwt.verify(token, "urlshortner");
-
-        if (!verified) {
+        const verify = verifyToken(token)
+        if (!verify) {
             return res.status(401).json({ success: false, message: "Unauthorized token" });
         }
 
         // RETRIEVE USER DATA
-        const user = await User.findById(verified.user);
+        const user = await getUserByDecodedToken(verify.user)
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        const { originalLink } = req.body;
-
-        if (!originalLink) {
-            return res.status(400).json({ message: "Missing original URL link" });
-        }
-
-        if (!isUrl(originalLink)) {
+        // VALIDATING ORIGINAL-LINK 
+        const validLink = checkOriginalLink(originalLink);
+        if (!validLink) {
             return res.status(400).json({ message: "Invalid URL format" });
         }
 
-        const urlCode = generateUrl({
-            length: 8,
-            uppercase: true,
-        });
+        // GENERATING SHORT URL
+        const urlCode = generateShortUrl()
+        if (!urlCode) {
+            return res.status(500).json({ message: "Failed Try Again" });
+        }
 
+        // STORING TO DATABASE
         let urlData = await Url.findOne({ user: user._id });
         if (!urlData) {
             urlData = await Url.create({ user: user._id, urls: [] });
@@ -66,28 +65,28 @@ export const createUrlPost = async (req: req, res: res) => {
     }
 };
 
-export const fetchAllUrlsByUser = async (req: req, res: res) => {
+export const fetchAllUrlsByUserGET = async (req: req, res: res) => {
+
+    // CHECKING JWT
     const token = req.cookies.token;
-
-
     if (!token) {
         return res.status(401).json({ success: false, message: "Unauthorized. No token provided" });
     }
 
     try {
         // VERIFY TOKEN
-        const verified: any = jwt.verify(token, "urlshortner");
-
-        if (!verified) {
+        const verify = verifyToken(token)
+        if (!verify) {
             return res.status(401).json({ success: false, message: "Unauthorized token" });
         }
 
         // RETRIEVE USER DATA
-        const user = await User.findById(verified.user);
+        const user = await getUserByDecodedToken(verify.user)
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
+        // FETCHING DATA FROM DB
         const data = await Url.findOne({ user: user._id })
 
 
@@ -99,26 +98,44 @@ export const fetchAllUrlsByUser = async (req: req, res: res) => {
     }
 }
 
+export const redirectByUrlCodeGet = async (req: req, res: res) => {
 
-// export const fetcDataByUrlCodeGet = async (req: req, res: res) => {
+    // CHECKING JWT
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ success: false, message: "Unauthorized. No token provided" });
+    }
 
-//     const urlCode = req.params.urlCode;
+    // CHECKING SHORT URL CODE
+    const urlCode = req.params.urlCode;
+    if (!urlCode) {
+        res.status(404).send("Passed short url is wrong or not found");
+    }
 
-//     if (!urlCode) {
-//         res.status(404).send("Passed short url not found");
-//     }
+    try {
 
-//     try {
-//         const data = await getUrlByUrlCode(urlCode);
+        // VERIFY TOKEN
+        const verify = verifyToken(token)
+        if (!verify) {
+            return res.status(401).json({ success: false, message: "Unauthorized token" });
+        }
 
-//         if (data) {
-//             res.status(301).redirect(data?.originalLink)
-//         } else {
-//             res.status(404).send("Data not found for the provided URL code");
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send("Internal Server Error");
-//     }
+        // RETRIEVE USER DATA
+        const user = await getUserByDecodedToken(verify.user)
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
 
-// }
+        // FETCHING ORIGINAL LINK BY SHORT URL
+        const originalLink = await getOriginalLinkByUrlCode(user, urlCode)
+        if (originalLink === undefined) {
+            return res.status(404).json({ success: false, message: "Link not found" });
+        }
+
+        res.status(301).redirect(originalLink);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}

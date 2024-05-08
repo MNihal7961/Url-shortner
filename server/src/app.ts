@@ -10,18 +10,16 @@ dotenv.config()
 const app = express()
 
 //middlewares
-
-app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }))
-
-const PORT: number | string = process.env.PORT || 5000
-
-//cors
 app.use(cors({
     origin: ["http://localhost:5173"],
     credentials: true
-}))
+}));
+
+const PORT: number | string = process.env.PORT || 5000
+
 
 
 // Server connection

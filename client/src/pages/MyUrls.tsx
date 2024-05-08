@@ -30,7 +30,9 @@ const MyUrls = () => {
     return chunks.join("\n");
   };
 
-  const goToUrl = async (urlCode: string) => {};
+  const goToUrl = async (urlCode: string) => {
+    const result= await axios.get('http://localhost:4000/api/url')
+  };
 
   return (
     <div className="relative overflow-x-auto mt-32">

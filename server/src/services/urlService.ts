@@ -1,44 +1,53 @@
-// import { generate as generateUrl } from "generate-password";
+import isUrl from "is-url";
+import { generate as generateUrl } from "generate-password";
 
-// import Url from "../model/urlSchema";
-// import { UrlPayloadType } from "../types";
+import Url from "../model/urlSchema";
+import { ObjectId } from "mongoose";
 
-// // Create Shorten URL
-// export const createURL = async (payload: UrlPayloadType) => {
-//     if (!payload.originalLink) {
-//         throw Error("Missing some parameters");
-//     }
-//     try {
+export const checkOriginalLink = (link: string) => {
+    const check: boolean = isUrl(link);
+    return check;
+};
 
-//         // Creating short URL
-//         const urlCode = generateUrl({
-//             length: 8,
-//             uppercase: true,
-//         });
+export const generateShortUrl = () => {
+    const code = generateUrl({
+        length: 8,
+        uppercase: true,
+    });
 
-//         const data={
-//             name:payload.name,
-            
-//         }
+    return code;
+};
 
-//         return 
+export const getOriginalLinkByUrlCode = async (user: any, code: string) => {
+    try {
 
-//     } catch (error) {
-//         console.error(error);
-//     }
-// };
+        // FETCHING ORIGINAL LINK BY SHORT URL CODE
+        const originalLink = await Url.aggregate([
+            {
+                $match: {
+                    "user": user._id
+                }
+            },
+            {
+                $unwind: "$urls"
+            },
+            {
+                $match: {
+                    "urls.urlCode": code
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    originalLink: "$urls.originalLink"
+                }
+            }
+        ]);
 
-// // Get original link by Url code
-// export const getUrlByUrlCode = async (urlCode: string) => {
-//     try {
-//         const data = await Url.findOne({ urlCode });
+        return originalLink[0].originalLink;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+};
 
-//         if (!data) {
-//             throw  Error("Bad request")
-//         }
-
-//         return data;
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }

@@ -1,14 +1,12 @@
 import express from 'express';
 
-import { createUrlPost ,fetchAllUrlsByUser} from '../controller/urlController';
+import { createUrlPost, fetchAllUrlsByUserGET, redirectByUrlCodeGet } from '../controller/urlController';
 
+const router = express.Router();
 
+router.post("/", createUrlPost);
+router.get("/myurls", fetchAllUrlsByUserGET);
+router.get("/:urlCode", redirectByUrlCodeGet);
 
-const router = express.Router()
-
-router.post("/", createUrlPost)
-router.get("/myurls", fetchAllUrlsByUser)
-// router.get("/:urlCode", fetcDataByUrlCodeGet)
-
-export default router
+export default router;
 
