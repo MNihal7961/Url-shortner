@@ -5,7 +5,7 @@ import { FaLink } from "react-icons/fa";
 const AddUrl = () => {
   const [loading, setLoading] = useState<boolean>(false);
   return (
-    <section className="px-5 lg:px-0">
+    <section className="px-5 lg:px-0 mt-32 md:mt-24 h-[60vh] md:h-auto">
       <div className="w-full max-w-[800px] mx-auto rounded-lg shadow-md md:p-10">
         <div className="flex items-center justify-center">
           <h3 className="text-headingColor text-[22px] leading-9 font-bold mb-10">
