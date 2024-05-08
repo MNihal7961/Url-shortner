@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import dbConnect from "./config/db";
 import baseURL from './routes/index'
+import cors from 'cors'
 
 dotenv.config()
 
@@ -12,11 +13,18 @@ app.use(express.urlencoded({ extended: true }))
 
 const PORT: number | string = process.env.PORT || 5000
 
+const corsOptions = {
+    origin: true,
+    credential:true
+}
+
 // Server connection
 const server = app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 
 // DB connection
 dbConnect()
+
+app.use(cors(corsOptions))
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     console.log(`Route : ${req.method}:${req.originalUrl}`)
@@ -25,6 +33,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // Routes
 app.use("/api", baseURL)
+
+
 
 
 // Handle Errors

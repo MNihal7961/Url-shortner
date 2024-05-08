@@ -17,6 +17,7 @@ export const createUrlPost = async (req: req, res: res) => {
                 res.status(200).json(existUrl);
             } else {
                 const data = await createURL(req.body);
+                console.log(data)
                 res.status(201).json(data);
             }
 

@@ -1,9 +1,30 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { HashLoader } from "react-spinners";
 import { FaLink } from "react-icons/fa";
+import axios from "axios";
 
 const AddUrl = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [formData, setFormData] = useState({
+    originalLink: "",
+    name: "",
+  });
+  const handleInputChange = (e: any) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const [res, setRes] = React.useState([]);
+
+  const result = async () => {
+    try {
+      const { data } = await axios.post(
+        "http://localhost:4000/api/url",
+        formData
+      );
+      console.log("result", data);
+      setRes(data);
+    } catch (error) {}
+  };
   return (
     <section className="px-5 lg:px-0 mt-32 md:mt-24 h-[60vh] md:h-auto">
       <div className="w-full max-w-[800px] mx-auto rounded-lg shadow-md md:p-10">
@@ -13,13 +34,15 @@ const AddUrl = () => {
           </h3>
           <FaLink size={50} className="text-primaryColor hover:scale-150" />
         </div>
-        <form className="py-4 md:py-0 ">
+        <form className="py-4 md:py-0 " onSubmit={result}>
           <div className="mb-5">
             <p className="form__label">Enter the original link*</p>
             <input
               type="text"
               placeholder="Copy the link here"
               name="originalLink"
+              value={formData.originalLink}
+              onChange={handleInputChange}
               className="w-full px-4 py-3 rounded-lg border border-solid border-black focus:outline-none focus:border-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer required:"
             />
           </div>
@@ -29,6 +52,8 @@ const AddUrl = () => {
               type="text"
               placeholder="Enter a name (optional)"
               name="name"
+              value={formData.name}
+              onChange={handleInputChange}
               className="w-full px-4 py-3 rounded-lg border border-solid border-black focus:outline-none focus:border-primaryColor text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer required:"
             />
           </div>
