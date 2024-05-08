@@ -4,13 +4,13 @@ import bcrypt from 'bcryptjs'
 import User from "../model/userSchema"
 
 //REGISTER
-export const register = async (req:req, res:res) => {
-    const { email, password, name} = req.body
+export const register = async (req: req, res: res) => {
+    const { email, password, name } = req.body
     try {
         //CHECK EXIST USER
         const user = await User.findOne({ email: email })
         if (user) {
-            return res.status(400).json({ success: false, message: "User already exist with this email" })
+            return res.status(409).json({ success: false, message: "User already exist with this email" })
         }
 
         //HASHING PASSWORD
@@ -36,7 +36,7 @@ export const register = async (req:req, res:res) => {
 }
 
 //LOGIN
-export const login = async (req:req, res:res) => {
+export const login = async (req: req, res: res) => {
 
     const { email, password } = req.body
 
@@ -59,26 +59,22 @@ export const login = async (req:req, res:res) => {
             {
                 user: user._id,
             },
-            "crudappmern", {
+            "urlshortner", {
             expiresIn: "30d"
         }
         )
 
-
-        res
-            .cookie("token", token, {
-                httpOnly: true,
-                maxAge: 1000 * 60 * 60 * 24,
-            })
-            .json({ success: true, message: 'Login Success', user })
+        res.cookie("token", token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 });
+        res.json({ success: true, message: 'Login Success', user });
 
     } catch (err) {
+        console.log(err)
         res.status(400).json({ succcess: false, message: "Server Failed Tryagain" })
     }
 }
 
 //LOGOUT
-export const logout = (req:req, res:res) => {
+export const logout = (req: req, res: res) => {
     try {
         res.status(200).clearCookie("token").json({ succcess: true, message: 'Logout Suceess' })
     } catch (err) {

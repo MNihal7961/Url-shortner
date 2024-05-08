@@ -1,42 +1,44 @@
-import { generate as generateUrl } from "generate-password";
+// import { generate as generateUrl } from "generate-password";
 
-import Url from "../model/urlSchema";
-import { UrlPayloadType } from "../types";
+// import Url from "../model/urlSchema";
+// import { UrlPayloadType } from "../types";
 
-// Create Shorten URL
-export const createURL = async (payload: UrlPayloadType) => {
-    if (!payload.originalLink) {
-        throw Error("Missing some parameters");
-    }
-    try {
-        let url = new Url(payload);
+// // Create Shorten URL
+// export const createURL = async (payload: UrlPayloadType) => {
+//     if (!payload.originalLink) {
+//         throw Error("Missing some parameters");
+//     }
+//     try {
 
-        // Creating short URL
-        const urlCode = generateUrl({
-            length: 8,
-            uppercase: true,
-        });
+//         // Creating short URL
+//         const urlCode = generateUrl({
+//             length: 8,
+//             uppercase: true,
+//         });
 
-        url.urlCode = urlCode;
+//         const data={
+//             name:payload.name,
+            
+//         }
 
-        url = await url.save();
-        return url;
-    } catch (error) {
-        console.error(error);
-    }
-};
+//         return 
 
-// Get original link by Url code
-export const getUrlByUrlCode = async (urlCode: string) => {
-    try {
-        const data = await Url.findOne({ urlCode });
+//     } catch (error) {
+//         console.error(error);
+//     }
+// };
 
-        if (!data) {
-            throw  Error("Bad request")
-        }
+// // Get original link by Url code
+// export const getUrlByUrlCode = async (urlCode: string) => {
+//     try {
+//         const data = await Url.findOne({ urlCode });
 
-        return data;
-    } catch (error) {
-        console.error(error);
-    }
-}
+//         if (!data) {
+//             throw  Error("Bad request")
+//         }
+
+//         return data;
+//     } catch (error) {
+//         console.error(error);
+//     }
+// }

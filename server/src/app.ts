@@ -3,20 +3,26 @@ import dotenv from "dotenv";
 import dbConnect from "./config/db";
 import baseURL from './routes/index'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 
 dotenv.config()
 
 const app = express()
 
+//middlewares
+
 app.use(express.json())
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }))
 
 const PORT: number | string = process.env.PORT || 5000
 
-const corsOptions = {
-    origin: true,
-    credential:true
-}
+//cors
+app.use(cors({
+    origin: ["http://localhost:5173"],
+    credentials: true
+}))
+
 
 // Server connection
 const server = app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
@@ -24,8 +30,8 @@ const server = app.listen(PORT, () => console.log(`Server running at http://loca
 // DB connection
 dbConnect()
 
-app.use(cors(corsOptions))
 
+// Loging requests
 app.use((req: Request, res: Response, next: NextFunction) => {
     console.log(`Route : ${req.method}:${req.originalUrl}`)
     next()
@@ -33,8 +39,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // Routes
 app.use("/api", baseURL)
-
-
 
 
 // Handle Errors
