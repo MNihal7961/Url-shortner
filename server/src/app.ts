@@ -38,6 +38,22 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Routes
 app.use("/api", baseURL)
 
+// Backend proxy endpoint
+app.get("/api/redirect/:urlCode", async (req: Request, res: Response) => {
+    const { urlCode } = req.params;
+
+    try {
+        // Make the request to the external URL
+        const response = await app.get(`https://google.com/${urlCode}`);
+
+        // Forward the response back to the frontend
+        res.send(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 // Handle Errors
 process.on('unhandledRejection', (reason, p) => {

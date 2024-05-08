@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { MdDelete } from "react-icons/md";
+import { toast } from "react-toastify";
 
 const MyUrls = () => {
   const [urls, setUrls] = useState([]);
@@ -30,8 +31,17 @@ const MyUrls = () => {
     return chunks.join("\n");
   };
 
-  const goToUrl = async (urlCode: string) => {
-    const result= await axios.get('http://localhost:4000/api/url')
+  const goToOriginalLink = (link: string) => {
+    window.location.href = link;
+  };
+
+  const goToUrl = (code: string) => {
+    try {
+      window.location.href = `http://localhost:4000/api/url/${code}`;
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -61,7 +71,10 @@ const MyUrls = () => {
             <tr key={index}>
               <td className="px-6 py-4">{index + 1}</td>
               <td className="px-6 py-4">{url.name || "NA"}</td>
-              <td className="px-6 py-4 hover:text-blue-600 cursor-pointer">
+              <td
+                onClick={() => goToOriginalLink(url.originalLink)}
+                className="px-6 py-4 hover:text-blue-600 cursor-pointer"
+              >
                 <span style={{ whiteSpace: "pre-wrap" }}>
                   {insertLineBreaks(url.originalLink)}
                 </span>

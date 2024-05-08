@@ -2,7 +2,7 @@ import { Request as req, Response as res } from "express";
 
 import Url from '../model/urlSchema';
 import { verifyToken, getUserByDecodedToken } from "../services/userService";
-import { checkOriginalLink, generateShortUrl, getOriginalLinkByUrlCode } from "../services/urlService";
+import { checkOriginalLink, generateShortUrl, getOriginalLinkByUrlCode, removeShortedUrlCode } from "../services/urlService";
 
 
 export const createUrlPost = async (req: req, res: res) => {
@@ -65,7 +65,7 @@ export const createUrlPost = async (req: req, res: res) => {
     }
 };
 
-export const fetchAllUrlsByUserGET = async (req: req, res: res) => {
+export const fetchAllUrlsByUserGet = async (req: req, res: res) => {
 
     // CHECKING JWT
     const token = req.cookies.token;
@@ -128,7 +128,7 @@ export const redirectByUrlCodeGet = async (req: req, res: res) => {
 
         // FETCHING ORIGINAL LINK BY SHORT URL
         const originalLink = await getOriginalLinkByUrlCode(user, urlCode)
-        if (originalLink === undefined) {
+        if (!originalLink) {
             return res.status(404).json({ success: false, message: "Link not found" });
         }
 
@@ -138,4 +138,45 @@ export const redirectByUrlCodeGet = async (req: req, res: res) => {
         console.error(error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
-}
+};
+
+export const deleteUrlCodePut = async (req: req, res: res) => {
+
+    // CHECKING JWT
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ success: false, message: "Unauthorized. No token provided" });
+    }
+
+    // CHECKING SHORT URL CODE
+    const urlCode = req.params.urlCode;
+    if (!urlCode) {
+        res.status(404).send("Passed short url is wrong or not found");
+    }
+    try {
+
+        // VERIFY TOKEN
+        const verify = verifyToken(token)
+        if (!verify) {
+            return res.status(401).json({ success: false, message: "Unauthorized token" });
+        }
+
+        // RETRIEVE USER DATA
+        const user = await getUserByDecodedToken(verify.user);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // FINDING AND REMOVING URL
+        const update = await removeShortedUrlCode(user, urlCode)
+        if (!update) {
+            return res.status(403).json({ success: false, message: "Forbidden" });
+        }
+
+        return res.status(201).json({ message: 'Successfully removed short url' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};

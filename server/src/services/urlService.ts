@@ -2,7 +2,6 @@ import isUrl from "is-url";
 import { generate as generateUrl } from "generate-password";
 
 import Url from "../model/urlSchema";
-import { ObjectId } from "mongoose";
 
 export const checkOriginalLink = (link: string) => {
     const check: boolean = isUrl(link);
@@ -51,3 +50,21 @@ export const getOriginalLinkByUrlCode = async (user: any, code: string) => {
     }
 };
 
+export const removeShortedUrlCode = async (user: any, code: string) => {
+    try {
+
+        // FINDING AND REMOVING DATA
+        const result = await Url.updateOne(
+            { user: user._id },
+            {
+                $pull: {
+                    "urls": { "urlCode": code }
+                }
+            }
+        );
+
+        return result ? true : false;
+    } catch (error) {
+        console.error(error);
+    }
+};
