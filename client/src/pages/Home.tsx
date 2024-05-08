@@ -1,7 +1,10 @@
+import AddUrl from "../components/AddUrl"
 
 const Home = () => {
   return (
-    <div>Home</div>
+    <div>
+        <AddUrl/>
+    </div>
   )
 }
 
