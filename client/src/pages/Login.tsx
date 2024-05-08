@@ -22,6 +22,15 @@ const Login = () => {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
+
+    if (!formData.email && !formData.password) {
+      return toast.error("Fill the fields");
+    } else if (!formData.password) {
+      return toast.error("Password is required");
+    } else if (!formData.email) {
+      return toast.error("Email is required");
+    }
+    
     try {
       dispatch(logInStart());
       const res = await axios.post(
@@ -50,14 +59,14 @@ const Login = () => {
         dispatch(logInFailure(data.message));
       }
     } catch (err: any) {
-      console.log(err)
+      console.log(err);
       toast.error(err.response.data.message);
       dispatch(logInFailure(err));
     }
   };
 
   return (
-    <section className="px-5 lg:px-0 h-[70vh]">
+    <section className="px-5 lg:px-0 mt-20 h-[70vh]">
       <div className="w-full max-w-[570px] mx-auto rounded-lg shadow-md md:p-10">
         <h3 className="text-headingColor text-[22px] leading-9 font-bold mb-10">
           Hello! <span className="text-primaryColor">Welcome</span> Back 🖐️

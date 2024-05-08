@@ -1,15 +1,35 @@
 import { useState } from "react";
 import { FaLink } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoMdClose } from "react-icons/io";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { signOut } from "../redux/userSlice";
+import { toast } from "react-toastify";
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   let Links = [
     { name: "HOME", link: "/" },
     { name: "MY URLS", link: "/urls" },
   ];
   let [open, setOpen] = useState(false);
+  const { currentUser } = useSelector((state: any) => state.user);
+  console.log(currentUser, "[[[[]]]]]]");
+
+  const handleLogout = async () => {
+    try {
+      axios.get("http://localhost:4000/api/user/logout").then(() => {
+        dispatch(signOut());
+        navigate("/login");
+        toast.success("Logout Success");
+      });
+    } catch (err: any) {
+      toast.error(err.response.data.message);
+    }
+  };
 
   return (
     <div className="shadow-md w-full  top-0 left-0 fixed ">
@@ -34,7 +54,7 @@ const Header = () => {
             open ? "top-12" : "top-[-490px]"
           }`}
         >
-          {Links.map((link,index) => (
+          {Links.map((link, index) => (
             <li className="md:ml-8 md:my-0 my-7 font-semibold" key={index}>
               <a
                 href={link.link}
@@ -44,11 +64,21 @@ const Header = () => {
               </a>
             </li>
           ))}
-          <Link to="/login">
-            <button className=" bg-primaryColor text-white md:ml-8 font-semibold px-3 py-1 rounded duration-500 md:static">
-              Login
+          {!currentUser && (
+            <Link to="/login">
+              <button className=" bg-primaryColor text-white md:ml-8 font-semibold px-3 py-1 rounded duration-500 md:static">
+                Login
+              </button>
+            </Link>
+          )}
+          {currentUser && (
+            <button
+              onClick={handleLogout}
+              className=" bg-red-600 text-white md:ml-8 font-semibold px-3 py-1 rounded duration-500 md:static"
+            >
+              Logout
             </button>
-          </Link>
+          )}
         </ul>
       </div>
     </div>

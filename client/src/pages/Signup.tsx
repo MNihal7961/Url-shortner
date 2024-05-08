@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HashLoader } from "react-spinners";
@@ -20,16 +21,58 @@ const Signup = () => {
     event.preventDefault();
     setLoading(true);
 
+    if (!formData.email && !formData.name && !formData.password) {
+      setLoading(false);
+      return toast.error("All fields are required");
+    } else if (!formData.email) {
+      setLoading(false);
+      return toast.error("Email is required");
+    } else if (!formData.name) {
+      setLoading(false);
+      return toast.error("Name is required");
+    } else if (!formData.password) {
+      setLoading(false);
+      return toast.error("Password is required");
+    } else if (formData.password.length < 6) {
+      setLoading(false);
+      return toast.error("Password should be minimum 6 charecters");
+    }
+
     try {
-      navigate("/login");
+      const res = await axios.post(
+        "http://localhost:4000/api/user/signup",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = res.data;
+
+      console.log(data);
+
+      if (res.status === 200) {
+        setLoading(false);
+        toast.success(data.message);
+        navigate("/login");
+      } else if (res.status === 409) {
+        setLoading(false);
+        toast.error("user already exists");
+      } else {
+        setLoading(false);
+        toast.error("signup failed");
+      }
     } catch (err: any) {
-      toast.error(err.message);
+      console.log(err);
+      toast.error(err.response.data.message);
       setLoading(false);
     }
   };
 
   return (
-    <section className="px-5 xl:px-0">
+    <section className="px-5 xl:px-0 mt-24">
       <div className="w-full max-w-[570px] mx-auto rounded-lg shadow-md md:p-10">
         <h3 className="text-headingColor text-[22px] leading-9 font-bold mb-10">
           Create an <span className="text-primaryColor">Account</span>

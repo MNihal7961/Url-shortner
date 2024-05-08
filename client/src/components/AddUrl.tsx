@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { HashLoader } from "react-spinners";
 import { FaLink } from "react-icons/fa";
 import axios from "axios";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const AddUrl = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -9,21 +12,47 @@ const AddUrl = () => {
     originalLink: "",
     name: "",
   });
+
+  const navigate=useNavigate()
   const handleInputChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const [res, setRes] = React.useState([]);
+  const { currentUser } = useSelector((state: any) => state.user);
 
-  const result = async () => {
+  axios.defaults.withCredentials = true;
+
+  const result = async (event: any) => {
+    event.preventDefault();
+    setLoading(true);
+
+    if (!currentUser) {
+      setLoading(false);
+      return toast.warning("Please login");
+    }
+
+    if (!formData.originalLink) {
+      setLoading(false);
+      return toast.error("Please enter the url");
+    }
+
     try {
       const { data } = await axios.post(
         "http://localhost:4000/api/url",
-        formData
+        formData,
+        { withCredentials: true }
       );
-      console.log("result", data);
-      setRes(data);
-    } catch (error) {}
+
+      setLoading(false);
+
+      toast.success(data.message);
+      navigate('/urls')
+
+    } catch (error: any) {
+      console.log(error);
+      setLoading(false);
+      toast.error(error.response.data.message);
+    }
   };
   return (
     <section className="px-5 lg:px-0 mt-32 md:mt-24 h-[60vh] md:h-auto">
