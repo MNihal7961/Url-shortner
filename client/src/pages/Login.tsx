@@ -2,14 +2,19 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HashLoader } from "react-spinners";
 import { toast } from "react-toastify";
+import { logInStart, logInSuccess, logInFailure } from "../redux/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 
 const Login = () => {
+  const { loading } = useSelector((state: any) => state.user);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [loading, setLoading] = useState<boolean>(false);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleInputChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,13 +22,37 @@ const Login = () => {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    setLoading(true);
-
     try {
-      navigate("/home");
+      dispatch(logInStart());
+      const res = await axios.post(
+        "http://localhost:4000/api/user/login",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = res.data;
+
+      console.log(data);
+
+      if (res.status === 200) {
+        dispatch(logInSuccess(data));
+        toast.success(data.message);
+        navigate("/");
+      } else if (res.status === 404) {
+        toast.error("User Not Found");
+        dispatch(logInFailure(data.message));
+      } else {
+        toast.error("Login Failed");
+        dispatch(logInFailure(data.message));
+      }
     } catch (err: any) {
-      toast.error(err.message);
-      setLoading(false);
+      console.log(err)
+      toast.error(err.response.data.message);
+      dispatch(logInFailure(err));
     }
   };
 

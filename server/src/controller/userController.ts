@@ -45,6 +45,7 @@ export const login = async (req:req, res:res) => {
         //CHECK EXIST USER
         const user = await User.findOne({ email: email })
         if (!user) {
+            console.log("not a user")
             return res.status(404).json({ success: false, message: "User Not Found" })
         }
 
