@@ -35,6 +35,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next()
 })
 
+app.get('/',(req,res)=>{
+res.json('hello')
+})
+
 // Routes
 app.use("/api", baseURL)
 
