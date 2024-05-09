@@ -6,7 +6,9 @@ ShortURL is a web application developed using React, Node.js, and MongoDB. It al
 
 - JWT authentication for user login and signup
 - URL shortening to 8-character length links
+- Listing all shorted URLs
 - Redirection to original URLs
+- Delete the shorted URLs
 
 ## Technologies Used
 
