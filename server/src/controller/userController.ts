@@ -1,7 +1,13 @@
 import jwt from "jsonwebtoken"
 import { Request as req, Response as res } from "express";
-import bcrypt from 'bcryptjs'
-import User from "../model/userSchema"
+import bcrypt from 'bcryptjs';
+import User from "../model/userSchema";
+import dotenv from "dotenv";
+
+dotenv.config()
+
+
+const jwtSecret = process.env.JWT_SECRET;
 
 //REGISTER
 export const register = async (req: req, res: res) => {
@@ -42,6 +48,11 @@ export const login = async (req: req, res: res) => {
 
     try {
 
+
+        if (!jwtSecret) {
+            throw new Error('JWT secret is not defined in the environment variables.');
+        }
+
         //CHECK EXIST USER
         const user = await User.findOne({ email: email })
         if (!user) {
@@ -59,7 +70,7 @@ export const login = async (req: req, res: res) => {
             {
                 user: user._id,
             },
-            "urlshortner", {
+            jwtSecret, {
             expiresIn: "30d"
         }
         )
