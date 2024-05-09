@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { HashLoader } from "react-spinners";
 import { FaLink } from "react-icons/fa";
 import axios from "axios";
@@ -13,7 +13,7 @@ const AddUrl = () => {
     name: "",
   });
 
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const handleInputChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -46,8 +46,7 @@ const AddUrl = () => {
       setLoading(false);
 
       toast.success(data.message);
-      navigate('/urls')
-
+      navigate("/urls");
     } catch (error: any) {
       console.log(error);
       setLoading(false);
