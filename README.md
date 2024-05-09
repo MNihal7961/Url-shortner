@@ -27,20 +27,19 @@ To get started with ShortURL, follow these steps:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/shorturl.git
+   git clone https://github.com/MNihal7961/Url-shortner.git
    ```
 
 2. **Setup Environment:**
 
    - Create a `.env` file in the `server` directory for server-related environment variables.
-   - Create a `.env` file in the `client` directory for client-related environment variables.
+
    - Example `.env` files:
      ```dotenv
      # Server .env
      PORT=4000
-     MONGO_URL="mongodb://localhost:27017/URL-app"
-     JWT_SECRET="urlshortner"
-     CLUSTER_PASS=hURo26qKb4NCu8nJ
+     MONGO_URL="Your Mongo Url"
+     JWT_SECRET="Your JWT Secret"
      ```
 
 3. **Install Dependencies and Run Development Servers:**
@@ -70,7 +69,7 @@ To use the website:
 
 ## Preview
 
-![ShortURL Preview](link-to-your-preview-screenshot)
+![ShortURL Preview](./Preview.png)
 
 ## Contribution
 
